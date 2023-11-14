@@ -34,6 +34,7 @@ import {
 import {
   insertSibling,
   insertBefore,
+  insertParent,
   addChild,
   copyNode,
   moveNode,
@@ -167,7 +168,7 @@ export interface Options {
 }
 const $d = document
 /**
- * @class MindElixir
+ * @export MindElixir
  * @example
  * let mind = new MindElixir({
   el: '#map',
@@ -294,6 +295,7 @@ MindElixir.prototype = {
   // node operation
   insertSibling: beforeHook(insertSibling),
   insertBefore: beforeHook(insertBefore),
+  insertParent: beforeHook(insertParent),
   addChild: beforeHook(addChild),
   copyNode: beforeHook(copyNode),
   moveNode: beforeHook(moveNode),

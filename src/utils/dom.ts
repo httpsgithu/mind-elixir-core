@@ -21,7 +21,7 @@ export const findEle = (id: string, instance?) => {
 }
 
 export const shapeTpc = function(tpc: Topic, nodeObj: NodeObj) {
-  tpc.innerText = nodeObj.topic
+  tpc.textContent = nodeObj.topic
 
   if (nodeObj.style) {
     tpc.style.color = nodeObj.style.color || 'inherit'
@@ -63,11 +63,11 @@ export const shapeTpc = function(tpc: Topic, nodeObj: NodeObj) {
   }
 }
 
-export const createGroup = function(nodeObj: NodeObj) {
+export const createGroup = function(nodeObj: NodeObj, omitChildren?: boolean) {
   const grp: Group = $d.createElement('GRP')
   const top: Top = this.createTop(nodeObj)
   grp.appendChild(top)
-  if (nodeObj.children && nodeObj.children.length > 0) {
+  if (!omitChildren && nodeObj.children && nodeObj.children.length > 0) {
     top.appendChild(createExpander(nodeObj.expanded))
     if (nodeObj.expanded !== false) {
       const children = this.createChildren(nodeObj.children)
@@ -109,7 +109,8 @@ export function createInputDiv(tpc: Topic) {
   let div = $d.createElement('div')
   const origin = tpc.childNodes[0].textContent as string
   tpc.appendChild(div)
-  div.innerText = origin
+  div.id = 'input-box'
+  div.textContent = origin
   div.contentEditable = 'true'
   div.spellcheck = false
   div.style.cssText = `min-width:${tpc.offsetWidth - 8}px;`
@@ -127,7 +128,7 @@ export function createInputDiv(tpc: Topic) {
   div.addEventListener('keydown', e => {
     e.stopPropagation()
     const key = e.key
-    console.log(e, key)
+    // console.log(e, key)
     if (key === 'Enter' || key === 'Tab') {
       // keep wrap for shift enter
       if (e.shiftKey) return
@@ -141,18 +142,19 @@ export function createInputDiv(tpc: Topic) {
     if (!div) return // 防止重复blur
     const node = tpc.nodeObj
     const topic = div.textContent!.trim()
+    console.log(topic)
     if (topic === '') node.topic = origin
     else node.topic = topic
     div.remove()
     this.inputDiv = div = null
+    if (topic === origin) return // 没有修改不做处理
+    tpc.childNodes[0].textContent = node.topic
+    this.linkDiv()
     this.bus.fire('operation', {
       name: 'finishEdit',
       obj: node,
       origin,
     })
-    if (topic === origin) return // 没有修改不做处理
-    tpc.childNodes[0].textContent = node.topic
-    this.linkDiv()
   })
   console.timeEnd('createInputDiv')
 }

@@ -1,7 +1,7 @@
 const path = require('path')
 // const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin
 
@@ -44,10 +44,10 @@ let config = {
 
 module.exports = (env, argv) => {
   if (argv.mode === 'development') {
-    console.log('development')
+    console.log('development', env)
     config = {
       ...config,
-      entry: env.dist ? './src/dev.dist.js' : './src/dev.ts',
+      entry: env.dist !== '0' ? './src/dev.dist.js' : './src/dev.ts',
       plugins: [
         new HtmlWebpackPlugin({
           title: 'MindElixir',
@@ -78,13 +78,16 @@ module.exports = (env, argv) => {
       //   new BundleAnalyzerPlugin()
       // ],
       optimization: {
-        minimizer: [new UglifyJsPlugin({
-          uglifyOptions: {
-            compress: {
-              drop_console: true,
+        minimize: true,
+        minimizer: [
+          new TerserPlugin({
+            terserOptions: {
+              compress: {
+                drop_console: true,
+              },
             },
-          },
-        })],
+          }),
+        ],
       },
     }
   }

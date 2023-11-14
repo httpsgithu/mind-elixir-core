@@ -4,13 +4,24 @@ import { exportSvg, exportPng } from '../painter/index'
 import example from './exampleData/1'
 import example2 from './exampleData/2'
 
+interface Window {
+  currentOperation: any
+  m: any
+  M: any
+  E: any
+  exportSvg: any
+  exportPng: any
+}
+
+declare let window: Window
+
 const mind = new MindElixir({
   el: '#map',
   newTopicName: '子节点',
-  // direction: MindElixir.LEFT,
-  direction: MindElixir.RIGHT,
-  // data: MindElixir.new('new topic'),
-  data: example,
+  direction: MindElixir.SIDE,
+  // direction: MindElixir.RIGHT,
+  data: MindElixir.new('new topic'),
+  // data: example,
   locale: 'en',
   draggable: true,
   editable: true,
@@ -36,14 +47,16 @@ const mind = new MindElixir({
       return false
     },
     insertSibling(el, obj) {
+      console.log('insertSibling', el, obj)
       return true
     },
     async addChild(el, obj) {
-      await sleep()
+      console.log('addChild', el, obj)
+      // await sleep()
       return true
     },
   },
-  // primaryLinkStyle: 2,
+  primaryLinkStyle: 1,
   primaryNodeVerticalGap: 15, // 25
   primaryNodeHorizontalGap: 15, // 65
 })
@@ -87,5 +100,6 @@ mind.bus.addListener('expandNode', node => {
 window.m = mind
 // window.m2 = mind2
 window.M = MindElixir
+window.E = MindElixir.E
 window.exportSvg = exportSvg
 window.exportPng = exportPng

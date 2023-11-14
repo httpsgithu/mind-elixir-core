@@ -5,6 +5,7 @@ import {
   removeNodeObj,
   insertNodeObj,
   insertBeforeNodeObj,
+  insertParentNodeObj,
   checkMoveValid,
   addParentLink,
   moveUpObj,
@@ -19,6 +20,7 @@ import { LEFT, RIGHT, SIDE } from './const'
 const $d = document
 
 /**
+ * @exports NodeOperation
  * @namespace NodeOperation
  */
 export const updateNodeStyle = function(object) {
@@ -134,6 +136,17 @@ export const insertSibling = function(el, node) {
   })
 }
 
+/**
+ * @function
+ * @instance
+ * @name insertBefore
+ * @memberof NodeOperation
+ * @description Create a sibling node before the selected node.
+ * @param {TargetElement} el - Target element return by E('...'), default value: currentTarget.
+ * @param {node} node - New node information.
+ * @example
+ * insertBefore(E('bd4313fbac40284b'))
+ */
 export const insertBefore = function(el, node) {
   const nodeEle = el || this.currentNode
   if (!nodeEle) return
@@ -169,6 +182,60 @@ export const insertBefore = function(el, node) {
   })
 }
 
+/**
+ * @function
+ * @instance
+ * @name insertParent
+ * @memberof NodeOperation
+ * @description Create a parent node of the selected node.
+ * @param {TargetElement} el - Target element return by E('...'), default value: currentTarget.
+ * @param {node} node - New node information.
+ * @example
+ * insertParent(E('bd4313fbac40284b'))
+ */
+export const insertParent = function(el, node) {
+  const nodeEle = el || this.currentNode
+  if (!nodeEle) return
+  const nodeObj = nodeEle.nodeObj
+  if (nodeObj.root === true) {
+    return
+  }
+  const newNodeObj = node || this.generateNewObj()
+  insertParentNodeObj(nodeObj, newNodeObj)
+  addParentLink(this.nodeData)
+
+  const grp0 = nodeEle.parentElement.parentElement
+  console.time('insertParent_DOM')
+  const { grp, top } = this.createGroup(newNodeObj, true)
+  top.appendChild(createExpander(true))
+  const children0 = grp0.parentNode
+  grp0.insertAdjacentElement('afterend', grp)
+
+  const c = $d.createElement('children')
+  c.appendChild(grp0)
+
+  top.insertAdjacentElement('afterend', c)
+
+  if (children0.className === 'box') {
+    grp.className = grp0.className // l/rhs
+    grp0.className = ''
+    grp0.querySelector('.svg3rd').remove()
+    this.linkDiv()
+  } else {
+    this.linkDiv(grp.offsetParent)
+  }
+
+  if (!node) {
+    this.createInputDiv(top.children[0])
+  }
+  this.selectNode(top.children[0], true)
+  console.timeEnd('insertParent_DOM')
+  this.bus.fire('operation', {
+    name: 'insertParent',
+    obj: newNodeObj,
+  })
+}
+
 export const addChildFunction = function(nodeEle, node) {
   if (!nodeEle) return
   const nodeObj = nodeEle.nodeObj
@@ -193,7 +260,7 @@ export const addChildFunction = function(nodeEle, node) {
       const c = $d.createElement('children')
       c.appendChild(grp)
       top.appendChild(createExpander(true))
-      top.parentElement.insertBefore(c, top.nextSibling)
+      top.insertAdjacentElement('afterend', c)
     }
     this.linkDiv(grp.offsetParent)
   } else if (top.tagName === 'ROOT') {
@@ -302,7 +369,7 @@ export const moveDownNode = function(el) {
   const obj = nodeEle.nodeObj
   moveDownObj(obj)
   if (grp.nextSibling) {
-    grp.parentNode.insertBefore(grp, grp.nextSibling.nextSibling)
+    grp.insertAdjacentElement('afterend', grp.nextSibling)
   } else {
     grp.parentNode.prepend(grp)
   }
@@ -343,7 +410,9 @@ export const removeNode = function(el) {
     // remove epd when children length === 0
     const parentT = t.parentNode.parentNode.previousSibling
     // root doesn't have epd
-    if (parentT.tagName !== 'ROOT') { parentT.children[1].remove() }
+    if (parentT.tagName !== 'ROOT') {
+      parentT.children[1].remove()
+    }
     this.selectParent()
   } else {
     // select sibling automatically
@@ -354,11 +423,7 @@ export const removeNode = function(el) {
     // MAYBEBUG should traversal all children node
     const link = this.linkData[prop]
     if (link.from === t.firstChild || link.to === t.firstChild) {
-      this.removeLink(
-        this.mindElixirBox.querySelector(
-          `[data-linkid=${this.linkData[prop].id}]`
-        )
-      )
+      this.removeLink(this.mindElixirBox.querySelector(`[data-linkid=${this.linkData[prop].id}]`))
     }
   }
   // remove GRP
@@ -377,7 +442,7 @@ export const removeNode = function(el) {
  * @instance
  * @name moveNode
  * @memberof NodeOperation
- * @description Move the target node to another node (as child node).
+ * @description Move a node to another node (as child node).
  * @param {TargetElement} from - The target you want to move.
  * @param {TargetElement} to - The target(as parent node) you want to move to.
  * @example
@@ -435,6 +500,17 @@ export const moveNode = function(from, to) {
   console.timeEnd('moveNode')
 }
 
+/**
+ * @function
+ * @instance
+ * @name moveNodeBefore
+ * @memberof NodeOperation
+ * @description Move a node and become previous node of another node.
+ * @param {TargetElement} from
+ * @param {TargetElement} to
+ * @example
+ * moveNodeBefore(E('bd4313fbac402842'),E('bd4313fbac402839'))
+ */
 export const moveNodeBefore = function(from, to) {
   const fromObj = from.nodeObj
   const toObj = to.nodeObj
@@ -447,6 +523,7 @@ export const moveNodeBefore = function(from, to) {
   const toGrp = toTop.parentNode
   const toChilren = toTop.parentNode.parentNode
   toChilren.insertBefore(fromGrp, toGrp)
+  if (toGrp.className) fromGrp.className = toGrp.className
   this.linkDiv()
   this.bus.fire('operation', {
     name: 'moveNodeBefore',
@@ -454,6 +531,17 @@ export const moveNodeBefore = function(from, to) {
   })
 }
 
+/**
+ * @function
+ * @instance
+ * @name moveNodeAfter
+ * @memberof NodeOperation
+ * @description Move a node and become next node of another node.
+ * @param {TargetElement} from
+ * @param {TargetElement} to
+ * @example
+ * moveNodeAfter(E('bd4313fbac402842'),E('bd4313fbac402839'))
+ */
 export const moveNodeAfter = function(from, to) {
   const fromObj = from.nodeObj
   const toObj = to.nodeObj
@@ -466,6 +554,7 @@ export const moveNodeAfter = function(from, to) {
   const toGrp = toTop.parentNode
   const toChilren = toTop.parentNode.parentNode
   toChilren.insertBefore(fromGrp, toGrp.nextSibling)
+  if (toGrp.className) fromGrp.className = toGrp.className
   this.linkDiv()
   this.bus.fire('operation', {
     name: 'moveNodeAfter',
