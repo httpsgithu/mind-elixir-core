@@ -1,166 +1,177 @@
-@GAP: 15px; // node horizontal gap
-body,
-html {
-  font-family: 微软雅黑;
-  padding: 0;
-  margin: 0;
+.mind-elixir {
+  // May overwrited by js
+  --gap: 30px; // child node horizontal gap
+  --root-radius: 30px;
+  --main-radius: 20px;
+  --root-color: #ffffff;
+  --root-bgcolor: #4c4f69;
+  --root-border-color: rgba(0, 0, 0, 0);
+  --main-color: #444446;
+  --main-bgcolor: #ffffff;
+  --topic-padding: 3px;
+  --color: #777777;
+  --bgcolor: #f6f6f6;
+  --selected: #4dc4ff;
+  --panel-color: #444446;
+  --panel-bgcolor: #ffffff;
+  --panel-border-color: #eaeaea;
+  // ---
+
+  position: relative;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC,
+    WenQuanYi Micro Hei, sans-serif;
+  .hyper-link {
+    text-decoration: none;
+    margin-left: 0.3em;
+  }
 }
 
 .map-container {
   user-select: none;
-  overflow: scroll !important;
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
   font-size: 15px;
+  * {
+    box-sizing: border-box; // must have, to make getComputedStyle work right
+  }
   &::-webkit-scrollbar {
     width: 0px;
     height: 0px;
   }
-  .focus-mode {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background: #fff;
+  .selected {
+    outline: 2px solid var(--selected);
+    outline-offset: 1px;
+  }
+  .lhs {
+    direction: rtl;
+    me-tpc {
+      direction: ltr;
+    }
   }
   .map-canvas {
     height: 20000px;
     width: 20000px;
     position: relative;
     user-select: none;
-    transition: all 0.3s;
+    transition: transform 0.3s;
     transform: scale(1);
-    background: #f6f6f6;
-    .selected {
-      outline: 2px solid #4dc4ff;
-    }
-    root {
+    background-color: var(--bgcolor);
+    me-nodes {
       position: absolute;
-      tpc {
-        color: rgb(255, 255, 255);
-        padding: 10px @GAP;
-        background-color: rgb(0, 170, 255);
-        border-radius: 5px;
-        font-size: 25px;
-        [contentEditable] {
-          position: absolute;
-          top: 0;
-          left: 0;
-          background-color: rgb(0, 170, 255);
-          max-width: 300px;
-          z-index: 11;
-          -webkit-user-select: auto;
-        }
-      }
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: fit-content;
+      width: fit-content;
     }
-  }
-  .box {
-    & > grp {
-      // for primary node
-      position: absolute;
-      & > t > tpc {
-        background-color: rgb(255, 255, 255);
-        border: 1px solid rgb(68, 68, 68);
-        border-radius: 5px;
-        color: rgb(115, 92, 69);
-        padding: 8px 10px;
-        margin: 0;
-        [contentEditable] {
-          position: absolute;
-          top: 0;
-          left: 0;
-          background-color: #fff;
-          max-width: 300px;
-          margin: 9px @GAP + 10;
-          z-index: 11;
-          direction: ltr;
-          -webkit-user-select: auto;
-        }
-      }
-    }
-    .left-side {
-      direction: rtl;
-      tpc {
-        direction: ltr;
-      }
-    }
-    grp {
-      display: block;
-      pointer-events: none;
-    }
-    children,
-    t {
-      display: inline-block;
-      vertical-align: middle;
-    }
-    children {
-      padding-bottom: 1px;
-    }
-    t {
+    me-root {
       position: relative;
-      cursor: pointer;
-      padding: 0 @GAP;
-      tpc {
+      me-tpc {
         display: block;
-        padding: 5px;
-        margin-top: 10px;
-        border-radius: 3px;
-        color: rgb(102, 102, 102);
-        pointer-events: all;
-        max-width: 800px;
-        [contentEditable] {
-          position: absolute;
-          top: 0;
-          left: 0;
-          background-color: #fff;
-          max-width: 300px;
-          margin: 15px @GAP;
-          z-index: 11;
-          direction: ltr;
-          -webkit-user-select: auto;
-        }
-        .tags {
-          direction: ltr;
-          span {
-            display: inline-block;
-            border-radius: 3px;
-            padding: 2px 4px;
-            background: #d6f0f8;
-            color: #276f86;
-            margin: 0px;
-            font-size: 12px;
-            height: 16px;
-            line-height: 16px;
-            margin-right: 3px;
-            margin-top: 2px;
-          }
-        }
-        .icons {
-          display: inline-block;
-          direction: ltr;
-          margin-right: 10px;
-        }
+        font-size: 25px;
+        color: var(--root-color);
+        padding: 10px var(--gap);
+        border-radius: var(--root-radius);
+        border: var(--root-border-color) 2px solid;
+        white-space: pre-wrap;
+        background-color: var(--root-bgcolor);
       }
-      epd {
-        position: absolute;
-        height: 12px;
-        width: 12px;
-        line-height: 12px;
-        text-align: center;
-        border-radius: 50%;
-        border: 1px solid #4f4f4f;
-        background-color: #fff;
-        pointer-events: all;
-        z-index: 9;
-        &.minus {
-          transition: all 0.3s;
-          opacity: 0;
-          &:hover {
-            opacity: 1;
-          }
+    }
+  }
+  me-main {
+    // main node
+    & > me-wrapper {
+      position: relative; // make subline svg's offsetParent be the main node
+      margin: 45px 65px;
+      & > me-parent {
+        margin: 10px;
+        padding: 0;
+        & > me-tpc {
+          border-radius: var(--main-radius);
+          background-color: var(--main-bgcolor);
+          border: 2px solid var(--main-color);
+          color: var(--main-color);
+          padding: 8px 25px;
         }
       }
     }
   }
+  me-wrapper {
+    display: block;
+    pointer-events: none;
+    width: fit-content;
+    // position: relative;
+  }
+  me-children,
+  me-parent {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  me-parent {
+    position: relative; // for locating expand button
+    cursor: pointer;
+    padding: 6px var(--gap);
+    margin-top: 10px;
+    me-tpc {
+      position: relative;
+      display: block;
+      border-radius: 3px;
+      color: var(--color);
+      pointer-events: all;
+      max-width: 35em;
+      white-space: pre-wrap;
+      padding: var(--topic-padding);
+
+      // drag preview
+      .insert-preview {
+        position: absolute;
+        width: 100%;
+        left: 0px;
+        z-index: 9;
+      }
+      .show {
+        background: #7ad5ff;
+        pointer-events: none; // 不加会识别为不可移动
+        opacity: 0.7;
+      }
+      .before {
+        height: 14px;
+        top: -14px;
+      }
+      .in {
+        height: 100%;
+        top: 0px;
+      }
+      .after {
+        height: 14px;
+        bottom: -14px;
+      }
+    }
+    me-epd {
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      opacity: 0.8;
+      background-image: url('./icons/add-circle.svg');
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
+
+      pointer-events: all;
+      z-index: 9;
+      &.minus {
+        background-image: url('./icons/minus-circle.svg') !important;
+        transition: opacity 0.3s;
+        opacity: 0;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
   // iconfont
   .icon {
     width: 1em;
@@ -169,25 +180,30 @@ html {
     fill: currentColor;
     overflow: hidden;
   }
-  .svg2nd,
-  .svg3rd,
+  .lines,
+  .summary,
+  .subLines,
   .topiclinks,
   .linkcontroller {
     position: absolute;
-    height: 100%;
+    height: 102%;
     width: 100%;
     top: 0;
     left: 0;
   }
   .topiclinks,
-  .linkcontroller {
+  .linkcontroller,
+  .summary {
     pointer-events: none;
-    g {
+    text {
       pointer-events: all;
     }
+    .selected {
+      pointer-events: none;
+    }
   }
-  .svg2nd,
-  .svg3rd {
+  .lines,
+  .subLines {
     pointer-events: none;
     z-index: -1;
   }
@@ -203,26 +219,93 @@ html {
       cursor: pointer;
     }
   }
-}
-
-// TODO For org chart
-.down {
-  t,
-  children {
-    display: block !important;
+  #input-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: max-content; // let words expand the div and keep max length at the same time
+    max-width: 35em;
+    z-index: 11;
+    direction: ltr;
+    user-select: auto;
+    pointer-events: auto;
+    background-color: var(--bgcolor);
   }
-  grp {
-    display: inline-block !important;
-  }
-}
 
-.circle {
-  position: absolute;
-  height: 10px;
-  width: 10px;
-  margin-top: -5px;
-  margin-left: -5px;
-  border-radius: 100%;
-  background: #aaa;
-  cursor: pointer;
+  me-tpc {
+    & > * {
+      // tags,icons,images should not response to click event
+      pointer-events: none;
+    }
+    & > a {
+      pointer-events: auto;
+    }
+    & > img {
+      display: block;
+      margin-bottom: 8px;
+      object-fit: cover;
+    }
+    & > .text {
+      display: inline-block;
+    }
+  }
+  .circle {
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    margin-top: -5px;
+    margin-left: -5px;
+    border-radius: 100%;
+    background: #757575;
+    border: 2px solid #ffffff;
+
+    cursor: pointer;
+  }
+
+  .tags {
+    direction: ltr;
+    span {
+      display: inline-block;
+      border-radius: 3px;
+      padding: 2px 4px;
+      background: #d6f0f8;
+      color: #276f86;
+      margin: 0px;
+      font-size: 12px;
+      line-height: 1.3em;
+      margin-right: 4px;
+      margin-top: 2px;
+    }
+  }
+  .icons {
+    display: inline-block;
+    direction: ltr;
+    margin-left: 5px;
+    span {
+      display: inline-block;
+      line-height: 1.3em;
+    }
+  }
+
+  .mind-elixir-ghost {
+    position: fixed;
+    top: -100%;
+    left: -100%;
+    box-sizing: content-box;
+    opacity: 0.5;
+    background-color: #f6f6f6;
+    max-width: 200px;
+    width: fit-content;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: #666666 2px solid;
+  }
+
+  .selection-area {
+    background: #4f90f22d;
+    border: 1px solid #4f90f2;
+  }
 }

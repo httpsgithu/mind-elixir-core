@@ -1,0 +1,60 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: Node.js Package
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+      - run: pnpm i
+      - run: npm run build
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+      - name: Checkout docs repository
+        uses: actions/checkout@v3
+        with:
+          repository: mind-elixir/docs
+          token: ${{ secrets.PAT }}
+          path: me-docs
+
+      - name: Generate API documentation
+        run: | 
+          npm run doc
+          npm run doc:md
+
+      - name: Copy build results to docs repository
+        run: | 
+          cp -r ./md/* ./me-docs/docs/api   
+          cp -r ./md/* ./me-docs/i18n/ja/docusaurus-plugin-content-docs/current
+          cp -r ./md/* ./me-docs/i18n/zh-Hans/docusaurus-plugin-content-docs/current
+
+      - name: Push changes to docs repository
+        run: |
+          cd me-docs
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff-index --quiet HEAD; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update API documentation"
+            git push
+          fi
+
